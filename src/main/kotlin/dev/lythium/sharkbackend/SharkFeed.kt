@@ -6,11 +6,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 
 fun Application.main() {
     routing {
@@ -31,7 +29,7 @@ fun Application.main() {
             call.respondText(Json.encodeToString(feedItems), ContentType.Application.Json)
         }
         get("/feed/{id}") {
-            var id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
 
             val feedItem = transaction {
                 FeedItems.select {
@@ -66,6 +64,21 @@ fun Application.main() {
             transaction {
                 FeedItems.update({ FeedItems.id eq id }) {
                     it[downvotes] = downvotes + 1
+                }
+            }
+
+            call.respond(HttpStatusCode.OK)
+        }
+        post("/feed/new") {
+            val feedTitle = call.parameters["title"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+            val feedImageUrl = call.parameters["imageUrl"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+            transaction {
+                FeedItems.insert {
+                    it[title] = feedTitle
+                    it[imageUrl] = feedImageUrl
+                    it[upvotes] = 0
+                    it[downvotes] = 0
                 }
             }
 

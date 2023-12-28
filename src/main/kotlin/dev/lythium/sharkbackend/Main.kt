@@ -44,7 +44,7 @@ fun main(args: Array<String>) {
 }
 
 @Serializable
-class FeedItem(val id: Int, val title: String, val imageUrl: String, var upvotes: Int, var downvotes: Int) {
+class FeedItem(val id: Int = 0, val title: String, val imageUrl: String, var upvotes: Int = 0, var downvotes: Int = 0) {
 }
 
 object FeedItems: IntIdTable() {
