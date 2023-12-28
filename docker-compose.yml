@@ -18,7 +18,6 @@ services:
       POSTGRES_DB: sharkapp
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "54333:5432"
     healthcheck:
